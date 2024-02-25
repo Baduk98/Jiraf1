@@ -16,7 +16,7 @@ import static com.codeborne.selenide.Selenide.open;
 
 
 class AppCardDelivery {
-    String[] monthNames = { "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
+    String[] monthNames = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
     String date;
     String month;
     String day;
@@ -26,7 +26,7 @@ class AppCardDelivery {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.DAY_OF_MONTH, 100);
-        date =  new SimpleDateFormat("dd.MM.yyyy").format(calendar.getTime());
+        date = new SimpleDateFormat("dd.MM.yyyy").format(calendar.getTime());
         month = monthNames[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
         day = Integer.toString(calendar.get(Calendar.DATE));
         open("http://localhost:9999");
