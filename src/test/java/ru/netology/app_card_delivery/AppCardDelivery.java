@@ -1,3 +1,6 @@
+package ru.netology.app_card_delivery;
+
+
 import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.Test;
 
