@@ -1,53 +1,33 @@
-package ru.netology.app_card_delivery;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.Test;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selectors.withText;
+import static com.codeborne.selenide.Selenide.*;
 
-
-class AppCardDelivery {
-    String[] monthNames = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
-    String date;
-    String month;
-    String day;
-
-    @BeforeEach
-    void setUp() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_MONTH, 100);
-        date = new SimpleDateFormat("dd.MM.yyyy").format(calendar.getTime());
-        month = monthNames[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
-        day = Integer.toString(calendar.get(Calendar.DATE));
-        open("http://localhost:9999");
+public class AppCardDelivery {
+    private String generateDate(int addDays, String pattern) {
+        return LocalDate.now().plusDays(addDays).format(DateTimeFormatter.ofPattern(pattern));
     }
 
     @Test
-    @DisplayName("Должен забронировать встречу при вводе валидных данных")
-    void shouldRegisterCardDelivery() {
-        $("span[data-test-id='city'] input").setValue("Ка");
-        $$("div.popup__content div").find(exactText("Казань")).click();
-        $("span[data-test-id='date'] button").click();
+    void shouldCardDeliveryTest() {
+        open("http://localhost:9999");
 
-        while (!$("div.calendar__name").getText().equals(month)) {
-            $$("div.calendar__arrow.calendar__arrow_direction_right").get(1).click();
-        }
-
-        $$("table.calendar__layout td").find(text(day)).click();
-        $("span[data-test-id='name'] input").setValue("Петров Иван");
-        $("span[data-test-id='phone'] input").setValue("+79600000000");
-        $("label[data-test-id='agreement']").click();
-        $$("button").find(exactText("Забронировать")).click();
+        $("[data-test-id=city] input").setValue("Казань");
+        $("[data-test-id=date] input").doubleClick();
+        $("[data-test-id=date] input").sendKeys(generateDate(6, "dd.MM.yyyy"));
+        $("[data-test-id=name] input").setValue("Иванов Андрей");
+        $("[data-test-id=phone] input").setValue("+79870000000");
+        $("[data-test-id=agreement]").click();
+        $$("button").find(Condition.exactText("Забронировать")).click();
+        $(withText("Успешно!")).shouldBe(Condition.hidden, Duration.ofSeconds(100));
+        $(withText("Встреча успешно забронирована")).shouldBe(Condition.hidden, Duration.ofSeconds(100));
+        $("[data-test-id=notification]").shouldBe(Condition.visible, Duration.ofSeconds(100));
+        $("[data-test-id=notification]").shouldHave(Condition.text("Успешно!\n" +
+                "Встреча успешно забронирована на " + generateDate(6, "dd.MM.yyyy"))).shouldBe(Condition.visible);
     }
-
 }
